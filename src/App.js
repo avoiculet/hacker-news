@@ -3,33 +3,9 @@ import React from "react";
 
 
 const App = () => {
-    const initialStories = [
-        {
-            title: 'React',
-            url: 'https://reactjs.org',
-            author: 'Jordan Walke',
-            num_comments: 3,
-            points: 4,
-            objectId: 0
-        },
-        {
-            title: 'Redux',
-            url: 'https://redux.js.org',
-            author: 'Dan Abramov',
-            num_comments: 2,
-            points: 5,
-            objectId: 1
-        }
-    ]
-    const getAsyncStories = () => new Promise(resolve =>
-        setTimeout(() => resolve({
-                data: {
-                    stories: initialStories
-                }
-            }), 2000
-        ));
-    //Error condition:
-    //const getAsyncStories = () => new Promise((resolve, reject) => setTimeout(reject, 2000));
+
+    const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
+
     //Custom hook
     const useSemiPersistentState = (key, initialState) => {
         //UseState hook
@@ -65,7 +41,7 @@ const App = () => {
             case 'REMOVE_STORY':
                 return {
                     ...state,
-                    data: state.data.filter(story => story.objectId !== action.payload.objectId)
+                    data: state.data.filter(story => story.objectID !== action.payload.objectID)
                 }
             default:
                 throw new Error()
@@ -79,17 +55,20 @@ const App = () => {
     const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'React');
 
     React.useEffect(() => {
-        //setIsLoading(true);
+        if (!searchTerm) {
+            return;
+        }
         dispatchStories({type: 'STORIES_FETCH_INIT'})
-        getAsyncStories()
+        fetch(`${API_ENDPOINT}${searchTerm}`)
+            .then(response => response.json())
             .then(result => {
                 dispatchStories({
                     type: 'STORIES_FETCH_SUCCESS',
-                    payload: result.data.stories
+                    payload: result.hits
                 });
             })
             .catch(error => dispatchStories({type: 'STORIES_FETCH_FAILURE'}));
-    }, []);
+    }, [searchTerm]);
 
     const handleRemoveStory = item => {
         dispatchStories({
@@ -103,8 +82,6 @@ const App = () => {
         setSearchTerm(event.target.value);
     };
 
-    const searchedStories = stories.data.filter(story => story.title.toLowerCase().includes(searchTerm.toLowerCase()));
-
     return (
         <div>
             <h1>My Hacker Stories!</h1>
@@ -116,7 +93,7 @@ const App = () => {
             {stories.isLoading ? (
                 <p>Loading...</p>
             ) : (
-                <List list={searchedStories} onRemoveItem={handleRemoveStory}/>
+                <List list={stories.data} onRemoveItem={handleRemoveStory}/>
             )}
         </div>
     );
