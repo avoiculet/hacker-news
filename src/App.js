@@ -96,14 +96,7 @@ const App = () => {
     return (
         <div>
             <h1>My Hacker Stories!</h1>
-            <form onSubmit={handleSearchSubmit}>
-                <InputWithLabel id="search" value={searchTerm} onInputChange={handleSearchInput}>
-                    <SimpleText text="Search: "/>
-                </InputWithLabel>
-                <button type="submit" disabled={!searchTerm}>
-                    Submit
-                </button>
-            </form>
+            <SearchForm searchTerm={searchTerm} onSearchInput={handleSearchInput} onSearchSubmit={handleSearchSubmit}/>
 
             <hr/>
             {stories.isError && <p>Something went wrong...</p>}
@@ -115,6 +108,17 @@ const App = () => {
         </div>
     );
 }
+const SearchForm = ({searchTerm, onSearchInput, onSearchSubmit}) => (
+    <form onSubmit={onSearchSubmit}>
+        <InputWithLabel id="search" value={searchTerm} onInputChange={onSearchInput}>
+            <SimpleText text="Search: "/>
+        </InputWithLabel>
+        <button type="submit" disabled={!searchTerm}>
+            Submit
+        </button>
+    </form>
+
+)
 const SimpleText = ({text}) => (
     <>
         <strong>{text}</strong>
