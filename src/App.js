@@ -1,6 +1,6 @@
 import './App.css';
 import React from "react";
-
+import axios from 'axios';
 
 const App = () => {
 
@@ -53,25 +53,6 @@ const App = () => {
         })
     ;
     const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'React');
-    const handleFetchStories = React.useCallback(() => {
-        if (!searchTerm) {
-            return;
-        }
-        dispatchStories({type: 'STORIES_FETCH_INIT'})
-        fetch(`${API_ENDPOINT}${searchTerm}`)
-            .then(response => response.json())
-            .then(result => {
-                dispatchStories({
-                    type: 'STORIES_FETCH_SUCCESS',
-                    payload: result.hits
-                });
-            })
-            .catch(error => dispatchStories({type: 'STORIES_FETCH_FAILURE'}));
-    }, [searchTerm]);
-
-    React.useEffect(() => {
-        handleFetchStories();
-    }, [handleFetchStories]);
 
     const handleRemoveStory = item => {
         dispatchStories({
@@ -81,16 +62,49 @@ const App = () => {
         const newStories = stories.data.filter(story => story.objectId !== item.objectId)
         // setStories(newStories);
     }
-    const handleSearch = event => {
+
+    const [url, setUrl] = React.useState(`${API_ENDPOINT}${searchTerm}`)
+
+    const handleFetchStories = React.useCallback(async () => {
+        if (!searchTerm) {
+            return;
+        }
+        dispatchStories({type: 'STORIES_FETCH_INIT'})
+        try {
+            const result = await axios.get(url)
+            dispatchStories({
+                type: 'STORIES_FETCH_SUCCESS',
+                payload: result.data.hits
+            });
+        } catch (error) {
+            dispatchStories({type: 'STORIES_FETCH_FAILURE'})
+        }
+    }, [url]);
+
+    React.useEffect(() => {
+        handleFetchStories();
+    }, [handleFetchStories]);
+    const handleSearchInput = event => {
         setSearchTerm(event.target.value);
+    };
+
+    const handleSearchSubmit = (event) => {
+        setUrl(`${API_ENDPOINT}${searchTerm}`);
+        event.preventDefault();
     };
 
     return (
         <div>
             <h1>My Hacker Stories!</h1>
-            <InputWithLabel id="search" value={searchTerm} onInputChange={handleSearch}>
-                <SimpleText text="Search: "/>
-            </InputWithLabel>
+            <form onSubmit={handleSearchSubmit}>
+                <InputWithLabel id="search" value={searchTerm} onInputChange={handleSearchInput}>
+                    <SimpleText text="Search: "/>
+                </InputWithLabel>
+                <button type="submit" disabled={!searchTerm}>
+                    Submit
+                </button>
+            </form>
+
             <hr/>
             {stories.isError && <p>Something went wrong...</p>}
             {stories.isLoading ? (
