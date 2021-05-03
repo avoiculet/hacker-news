@@ -10,11 +10,11 @@ import axios from 'axios';
 
 import App, {
     storiesReducer,
-    SearchForm,
-    InputWithLabel,
-    List,
-    Item
 } from "./App";
+import SearchForm from './SearchForm';
+import InputWithLabel from './InputWithLabel';
+import List from './List';
+import {Item} from './Item';
 
 const JOHN = 'John';
 const REACT = 'React';

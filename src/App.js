@@ -2,6 +2,8 @@ import React from "react";
 import axios from 'axios';
 import styles from './App.module.css'
 import styled from 'styled-components';
+import SearchForm from "./SearchForm";
+import List from "./List";
 
 const StyledContainer = styled.div`
     height: 100vw;
@@ -15,59 +17,6 @@ const StyledHeadlinePrimary = styled.h1`
     font-weight: 300;
     letter-spacing: 2px;
     `;
-const StyledItem = styled.div`
-    display: flex;
-    align-items: center;
-    padding-bottom: 5px;
-`;
-const StyledColumn = styled.span`
-    padding: 0 5px;
-    white-space: nowrap;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    
-    a {
-        color: inherit;
-    }
-    width: ${props => props.width};
-`;
-const StyledButton = styled.button`
-    background: transparent;
-    border: 1px solid #171212;
-    padding: 5px;
-    cursor: pointer;
-    
-    transition: all 0.1s ease-in;
-    
-    &:hover {
-        background: #171212;
-        color: #ffffff;
-    }
-`;
-const StyledButtonSmall = styled(StyledButton)`
-    padding: 5px;
-`;
-const StyledButtonLarge = styled(StyledButton)`
-    padding: 10px;
-`;
-const StyledSearchForm = styled.form`
-    padding: 10px;
-    display: flex;
-    align-items: baseline;
-    `;
-const StyledLabel = styled.label`
-    border-top: 1px solid #171212;
-    border-left: 1px solid #171212;
-    padding-left: 5px;
-    font-size: 24px;
-`;
-const StyledInput = styled.input`
-    border: none;
-    border-bottom: 1px solid #171212;
-    font-size: 24px;
-    background-color: transparent;
-`;
 
 const storiesReducer = (state, action) => {
     switch (action.type) {
@@ -173,56 +122,8 @@ const App = () => {
         </StyledContainer>
     );
 }
-const SearchForm = ({searchTerm, onSearchInput, onSearchSubmit}) => (
-    <StyledSearchForm onSubmit={onSearchSubmit} className={styles.searchForm}>
-        <InputWithLabel id="search" value={searchTerm} onInputChange={onSearchInput}>
-            <SimpleText text="Search: "/>
-        </InputWithLabel>
-        <StyledButtonLarge disabled={!searchTerm}>
-            Submit
-        </StyledButtonLarge>
-    </StyledSearchForm>
 
-)
-const SimpleText = ({text}) => (
-    <>
-        <strong>{text}</strong>
-    </>
-)
 //<> replaces <div> - react fragment
-const InputWithLabel = ({id, label, value, type = 'text', onInputChange, children}) => {
-    return (
-        <>
-            <StyledLabel htmlFor={id} className={styles.label}>{children}</StyledLabel>
-            <StyledInput id={id} type={type} onChange={onInputChange} value={value} className={styles.input}/>
-        </>
-    )
-}
-
-const List = ({list, onRemoveItem}) =>
-    list.map(item => <Item key={item.objectId} item={item} onRemoveItem={onRemoveItem}/>);
-
-
-const Item = ({item, onRemoveItem}) => {
-    const handleRemoveItem = () => onRemoveItem(item);
-
-    return (
-        <StyledItem>
-            <StyledColumn width="40%">
-                <a href={item.url}>{item.title} </a>
-            </StyledColumn>
-            <StyledColumn width="30%">{item.author} </StyledColumn>
-            <StyledColumn width="10%">{item.num_comments} </StyledColumn>
-            <StyledColumn width="10%">{item.points} </StyledColumn>
-            <StyledColumn width="10%">
-                <StyledButtonSmall className={`${styles.button} ${styles.buttonSmall}`} type="button"
-                                   onClick={() => onRemoveItem(item)}>
-                    Dismiss
-                </StyledButtonSmall>
-            </StyledColumn>
-        </StyledItem>
-    )
-}
 
 export default App;
-export {storiesReducer, SearchForm, InputWithLabel, List, Item};
+export {storiesReducer};
